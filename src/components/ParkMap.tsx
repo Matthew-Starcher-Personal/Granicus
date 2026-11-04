@@ -72,7 +72,7 @@ export const ParkMap = forwardRef<ParkMapHandle, Props>(function ParkMap(
 
   useImperativeHandle(ref, () => ({
     focusMarker: (id) => markers.current.get(id)?.getElement()?.focus(),
-  }));
+  }), []);
 
   useEffect(() => {
     for (const [id, marker] of markers.current) {
