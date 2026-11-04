@@ -21,7 +21,6 @@ function formatRating(rating: number): string {
 export function ParkDetails({ park, onBack, headingRef: outerHeadingRef }: Props) {
   const ownHeadingRef = useRef<HTMLHeadingElement>(null);
   const headingRef = outerHeadingRef ?? ownHeadingRef;
-  const headingId = useId();
   const amenitiesHeadingId = useId();
 
   useEffect(() => {
@@ -35,11 +34,11 @@ export function ParkDetails({ park, onBack, headingRef: outerHeadingRef }: Props
   if (park.rating !== null) facts.push({ term: 'Rating', value: formatRating(park.rating) });
 
   return (
-    <article className="park-details" aria-labelledby={headingId}>
+    <article className="park-details">
       <button type="button" className="back-button" onClick={onBack}>
         <span aria-hidden="true">←</span> Back to all parks
       </button>
-      <h2 id={headingId} ref={headingRef} tabIndex={-1}>
+      <h2 ref={headingRef} tabIndex={-1}>
         {park.name}
       </h2>
       {park.description && <p className="park-details__description">{park.description}</p>}

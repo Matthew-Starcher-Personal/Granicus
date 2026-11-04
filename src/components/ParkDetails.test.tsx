@@ -19,6 +19,12 @@ describe('ParkDetails', () => {
     expect(within(amenities).getByText('Dog run')).toBeInTheDocument();
   });
 
+  it('announces the park name once, through the heading only', () => {
+    render(<ParkDetails park={park('prospect-park')} onBack={() => {}} />);
+    expect(screen.getByRole('article')).not.toHaveAccessibleName();
+    expect(screen.getAllByText('Prospect Park')).toHaveLength(1);
+  });
+
   it('omits fields that are missing from the data', () => {
     const { unmount } = render(<ParkDetails park={park('old-mill-botanical-garden')} onBack={() => {}} />);
     expect(document.querySelector('.park-details__description')).toBeNull();
