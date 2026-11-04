@@ -13,7 +13,12 @@ function cleanString(value: unknown): string | null {
   return trimmed === '' ? null : trimmed;
 }
 
+// Accepts real numbers and plain decimal strings like "4.7" (not "", "0x10" or "1e3").
 function cleanNumber(value: unknown): number | null {
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    value = /^-?\d+(\.\d+)?$/.test(trimmed) ? Number(trimmed) : null;
+  }
   return typeof value === 'number' && Number.isFinite(value) ? value : null;
 }
 

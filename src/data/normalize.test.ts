@@ -66,9 +66,19 @@ describe('normalizePark edge cases', () => {
   });
 
   it('turns non-finite numbers into null', () => {
-    const park = normalizePark({ ...base, acreage: Number.NaN, rating: '4.5' })!;
+    const park = normalizePark({ ...base, acreage: Number.NaN, rating: Number.POSITIVE_INFINITY })!;
     expect(park.acreage).toBeNull();
     expect(park.rating).toBeNull();
+  });
+
+  it('accepts numbers written as plain decimal strings', () => {
+    const park = normalizePark({ ...base, acreage: ' 12 ', rating: '4.5', location: { lat: '40.5', lng: '-73.9' } })!;
+    expect(park.acreage).toBe(12);
+    expect(park.rating).toBe(4.5);
+    expect(park.location).toEqual({ lat: 40.5, lng: -73.9 });
+    for (const bad of ['', 'abc', '0x10', '1e3', '4.5 stars']) {
+      expect(normalizePark({ ...base, rating: bad })!.rating).toBeNull();
+    }
   });
 
   it('sets location to null for missing or out-of-range coordinates', () => {
