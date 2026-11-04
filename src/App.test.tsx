@@ -35,6 +35,16 @@ describe('App', () => {
     expect(screen.getByRole('button', { name: /Prospect Park/ })).toHaveAttribute('aria-current', 'true');
   });
 
+  it('names the skip link after what it jumps to', async () => {
+    setViewport(true);
+    render(<App parks={parks} />);
+    const user = userEvent.setup();
+    expect(screen.getByRole('link', { name: 'Skip to park list' })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /Prospect Park/ }));
+    await user.click(screen.getByRole('link', { name: 'Skip to park details' }));
+    await waitFor(() => expect(screen.getByRole('heading', { level: 2, name: 'Prospect Park' })).toHaveFocus());
+  });
+
   it('closes details with Escape', async () => {
     setViewport(true);
     render(<App parks={parks} />);

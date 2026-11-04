@@ -106,7 +106,7 @@ export function App({ parks }: Props) {
   return (
     <div className={!isDesktop && mapVisible ? 'app app--map-view' : 'app'}>
       <a className="skip-link" href="#park-panel" onClick={onSkip}>
-        Skip to park list
+        {detailsOpen ? 'Skip to park details' : 'Skip to park list'}
       </a>
       <header className="site-header">
         <h1>NYC Parks Explorer</h1>
