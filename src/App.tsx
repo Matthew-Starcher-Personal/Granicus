@@ -26,6 +26,8 @@ export function App({ parks }: Props) {
   const mapRef = useRef<ParkMapHandle>(null);
   const listButtons = useRef(new Map<string, HTMLButtonElement>());
   const savedScroll = useRef({ panel: 0, page: 0 });
+  const isDesktopRef = useRef(isDesktop);
+  isDesktopRef.current = isDesktop;
 
   const selectedPark = detailsOpen ? parks.find((p) => p.id === selectedId) ?? null : null;
 
@@ -60,8 +62,9 @@ export function App({ parks }: Props) {
   useEffect(() => {
     if (!detailsOpen) return;
     if (panelRef.current) panelRef.current.scrollTop = 0;
-    if (!isDesktop) window.scrollTo(0, 0);
-  }, [detailsOpen, selectedId, isDesktop]);
+    // Read the breakpoint through a ref: crossing it (resize, rotation) must not reset scroll.
+    if (!isDesktopRef.current) window.scrollTo(0, 0);
+  }, [detailsOpen, selectedId]);
 
   useEffect(() => {
     if (!detailsOpen) return;
