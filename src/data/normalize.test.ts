@@ -98,6 +98,11 @@ describe('normalizePark edge cases', () => {
     expect(park.images).toEqual([{ src: 'https://a/1.jpg', alt: 'X Park, photo 1 of 1' }]);
   });
 
+  it('drops repeated image URLs', () => {
+    const park = normalizePark({ ...base, images: ['https://a/1.jpg', ' https://a/1.jpg', 'https://a/2.jpg'] })!;
+    expect(park.images.map((i) => i.src)).toEqual(['https://a/1.jpg', 'https://a/2.jpg']);
+  });
+
   it('returns an empty list for non-array input', () => {
     expect(normalizeParks({})).toEqual([]);
   });

@@ -49,9 +49,11 @@ function cleanAmenities(value: unknown): Amenity[] {
 
 function cleanImages(value: unknown, parkName: string): ParkImage[] {
   if (!Array.isArray(value)) return [];
-  const sources = value
-    .map(cleanString)
-    .filter((src): src is string => src !== null && /^https?:\/\//i.test(src));
+  const sources = [
+    ...new Set(
+      value.map(cleanString).filter((src): src is string => src !== null && /^https?:\/\//i.test(src)),
+    ),
+  ];
   return sources.map((src, index) => ({
     src,
     alt: `${parkName}, photo ${index + 1} of ${sources.length}`,
