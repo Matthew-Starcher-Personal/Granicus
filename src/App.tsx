@@ -23,6 +23,8 @@ export function App({ parks }: Props) {
 
   const panelRef = useRef<HTMLElement>(null);
   const mapRef = useRef<ParkMapHandle>(null);
+  const listHeadingRef = useRef<HTMLHeadingElement>(null);
+  const detailsHeadingRef = useRef<HTMLHeadingElement>(null);
   const listButtons = useRef(new Map<string, HTMLButtonElement>());
   const savedScroll = useRef({ panel: 0, page: 0 });
   const isDesktopRef = useRef(isDesktop);
@@ -77,8 +79,7 @@ export function App({ parks }: Props) {
     if (!focusRequest) return;
     const frame = requestAnimationFrame(() => {
       if (focusRequest.kind === 'panel') {
-        const headingId = detailsOpen ? 'park-details-heading' : 'park-list-heading';
-        document.getElementById(headingId)?.focus();
+        (detailsOpen ? detailsHeadingRef : listHeadingRef).current?.focus();
       } else {
         if (panelRef.current) panelRef.current.scrollTop = savedScroll.current.panel;
         window.scrollTo(0, savedScroll.current.page);
@@ -123,9 +124,10 @@ export function App({ parks }: Props) {
               selectedId={selectedId}
               onSelect={(id) => openPark(id, 'list')}
               registerButton={registerButton}
+              headingRef={listHeadingRef}
             />
           </div>
-          {selectedPark && <ParkDetails park={selectedPark} onBack={closeDetails} />}
+          {selectedPark && <ParkDetails park={selectedPark} onBack={closeDetails} headingRef={detailsHeadingRef} />}
         </section>
         <div className={mapVisible ? 'map-area' : 'map-area map-area--hidden'}>
           <ParkMap

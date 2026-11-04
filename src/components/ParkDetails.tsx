@@ -1,22 +1,26 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useId, useRef, type RefObject } from 'react';
 import type { Park } from '../data/types';
 import { ParkImages } from './ParkImages';
 
 type Props = {
   park: Park;
   onBack: () => void;
+  headingRef?: RefObject<HTMLHeadingElement>;
 };
 
 function formatAcreage(acreage: number): string {
   return `${acreage.toLocaleString('en-US')} ${acreage === 1 ? 'acre' : 'acres'}`;
 }
 
-export function ParkDetails({ park, onBack }: Props) {
-  const headingRef = useRef<HTMLHeadingElement>(null);
+export function ParkDetails({ park, onBack, headingRef: outerHeadingRef }: Props) {
+  const ownHeadingRef = useRef<HTMLHeadingElement>(null);
+  const headingRef = outerHeadingRef ?? ownHeadingRef;
+  const headingId = useId();
+  const amenitiesHeadingId = useId();
 
   useEffect(() => {
     headingRef.current?.focus();
-  }, [park.id]);
+  }, [park.id, headingRef]);
 
   const facts: { term: string; value: string }[] = [];
   if (park.address) facts.push({ term: 'Address', value: park.address });
@@ -25,11 +29,11 @@ export function ParkDetails({ park, onBack }: Props) {
   if (park.rating !== null) facts.push({ term: 'Rating', value: park.rating.toLocaleString('en-US', { minimumFractionDigits: 1 }) });
 
   return (
-    <article className="park-details" aria-labelledby="park-details-heading">
+    <article className="park-details" aria-labelledby={headingId}>
       <button type="button" className="back-button" onClick={onBack}>
         <span aria-hidden="true">←</span> Back to all parks
       </button>
-      <h2 id="park-details-heading" ref={headingRef} tabIndex={-1}>
+      <h2 id={headingId} ref={headingRef} tabIndex={-1}>
         {park.name}
       </h2>
       {park.description && <p className="park-details__description">{park.description}</p>}
@@ -44,8 +48,8 @@ export function ParkDetails({ park, onBack }: Props) {
         </dl>
       )}
       {park.amenities.length > 0 && (
-        <section aria-labelledby="park-amenities-heading">
-          <h3 id="park-amenities-heading">Amenities</h3>
+        <section aria-labelledby={amenitiesHeadingId}>
+          <h3 id={amenitiesHeadingId}>Amenities</h3>
           <ul className="tags">
             {park.amenities.map((amenity) => (
               <li key={amenity.slug}>{amenity.label}</li>

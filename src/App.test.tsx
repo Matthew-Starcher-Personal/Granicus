@@ -40,7 +40,8 @@ describe('App', () => {
     setViewport(true);
     render(<App parks={parks} />);
     const user = userEvent.setup();
-    expect(screen.getByRole('link', { name: 'Skip to park list' })).toBeInTheDocument();
+    await user.click(screen.getByRole('link', { name: 'Skip to park list' }));
+    await waitFor(() => expect(screen.getByRole('heading', { level: 2, name: 'Parks' })).toHaveFocus());
     await user.click(screen.getByRole('button', { name: /Prospect Park/ }));
     await user.click(screen.getByRole('link', { name: 'Skip to park details' }));
     await waitFor(() => expect(screen.getByRole('heading', { level: 2, name: 'Prospect Park' })).toHaveFocus());

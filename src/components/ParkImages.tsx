@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import type { ParkImage } from '../data/types';
 
 type Props = { images: ParkImage[] };
@@ -9,6 +9,7 @@ type LoadStatus = 'loaded' | 'failed';
 // so a failed load never flashes on screen.
 export function ParkImages({ images }: Props) {
   const [status, setStatus] = useState<Record<string, LoadStatus>>({});
+  const headingId = useId();
   const candidates = images.filter((image) => status[image.src] !== 'failed');
 
   if (candidates.length === 0) return null;
@@ -18,8 +19,8 @@ export function ParkImages({ images }: Props) {
     setStatus((previous) => ({ ...previous, [src]: value }));
 
   return (
-    <section className="park-images" aria-labelledby="park-images-heading" hidden={!hasLoaded}>
-      <h3 id="park-images-heading">Photos</h3>
+    <section className="park-images" aria-labelledby={headingId} hidden={!hasLoaded}>
+      <h3 id={headingId}>Photos</h3>
       <ul>
         {candidates.map((image) => (
           <li key={image.src} hidden={status[image.src] !== 'loaded'}>

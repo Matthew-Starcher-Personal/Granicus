@@ -1,3 +1,4 @@
+import type { RefObject } from 'react';
 import type { Park } from '../data/types';
 
 type Props = {
@@ -5,14 +6,15 @@ type Props = {
   selectedId: string | null;
   onSelect: (id: string) => void;
   registerButton: (id: string, el: HTMLButtonElement | null) => void;
+  headingRef?: RefObject<HTMLHeadingElement>;
 };
 
-export function ParkList({ parks, selectedId, onSelect, registerButton }: Props) {
+export function ParkList({ parks, selectedId, onSelect, registerButton, headingRef }: Props) {
   const countLabel = `${parks.length} ${parks.length === 1 ? 'park' : 'parks'}`;
 
   return (
     <div className="park-list">
-      <h2 id="park-list-heading" tabIndex={-1}>
+      <h2 ref={headingRef} tabIndex={-1}>
         Parks
       </h2>
       <p className="park-list__count">{countLabel}</p>
