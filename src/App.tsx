@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type RefCallback } from 'react';
 import { ParkDetails } from './components/ParkDetails';
 import { ParkList } from './components/ParkList';
 import { ParkMap, type ParkMapHandle } from './components/ParkMap';
@@ -32,9 +32,18 @@ export function App({ parks }: Props) {
 
   const selectedPark = detailsOpen ? parks.find((p) => p.id === selectedId) ?? null : null;
 
-  const registerButton = useCallback((id: string, el: HTMLButtonElement | null) => {
-    if (el) listButtons.current.set(id, el);
-    else listButtons.current.delete(id);
+  // One cached ref callback per park, so React doesn't detach and reattach every button on each render.
+  const buttonRefCallbacks = useRef(new Map<string, RefCallback<HTMLButtonElement>>());
+  const buttonRef = useCallback((id: string) => {
+    let callback = buttonRefCallbacks.current.get(id);
+    if (!callback) {
+      callback = (el) => {
+        if (el) listButtons.current.set(id, el);
+        else listButtons.current.delete(id);
+      };
+      buttonRefCallbacks.current.set(id, callback);
+    }
+    return callback;
   }, []);
 
   const openPark = useCallback(
@@ -123,7 +132,7 @@ export function App({ parks }: Props) {
               parks={parks}
               selectedId={selectedId}
               onSelect={(id) => openPark(id, 'list')}
-              registerButton={registerButton}
+              buttonRef={buttonRef}
               headingRef={listHeadingRef}
             />
           </div>

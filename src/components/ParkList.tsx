@@ -1,15 +1,15 @@
-import type { RefObject } from 'react';
+import type { RefCallback, RefObject } from 'react';
 import type { Park } from '../data/types';
 
 type Props = {
   parks: Park[];
   selectedId: string | null;
   onSelect: (id: string) => void;
-  registerButton: (id: string, el: HTMLButtonElement | null) => void;
+  buttonRef: (id: string) => RefCallback<HTMLButtonElement>;
   headingRef?: RefObject<HTMLHeadingElement>;
 };
 
-export function ParkList({ parks, selectedId, onSelect, registerButton, headingRef }: Props) {
+export function ParkList({ parks, selectedId, onSelect, buttonRef, headingRef }: Props) {
   const countLabel = `${parks.length} ${parks.length === 1 ? 'park' : 'parks'}`;
 
   return (
@@ -23,7 +23,7 @@ export function ParkList({ parks, selectedId, onSelect, registerButton, headingR
           <li key={park.id}>
             <button
               type="button"
-              ref={(el) => registerButton(park.id, el)}
+              ref={buttonRef(park.id)}
               className="park-list__item"
               aria-current={park.id === selectedId ? 'true' : undefined}
               onClick={() => onSelect(park.id)}
