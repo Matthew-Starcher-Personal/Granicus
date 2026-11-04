@@ -22,6 +22,18 @@ function cleanNumber(value: unknown): number | null {
   return typeof value === 'number' && Number.isFinite(value) ? value : null;
 }
 
+// The rating scale isn't confirmed, so only negatives are rejected; 0 is a real rating.
+function cleanRating(value: unknown): number | null {
+  const rating = cleanNumber(value);
+  return rating === null || rating < 0 ? null : Math.round(rating * 10) / 10;
+}
+
+// Kept unrounded so the UI can tell a tiny park ("<0.1 acres") from a missing size.
+function cleanAcreage(value: unknown): number | null {
+  const acreage = cleanNumber(value);
+  return acreage === null || acreage <= 0 ? null : acreage;
+}
+
 function cleanLocation(value: unknown): Park['location'] {
   if (!isRecord(value)) return null;
   const lat = cleanNumber(value.lat);
@@ -76,8 +88,8 @@ export function normalizePark(raw: unknown): Park | null {
     location: cleanLocation(location),
     address: cleanString(location.address),
     hours: cleanString(raw.hours),
-    acreage: cleanNumber(raw.acreage),
-    rating: cleanNumber(raw.rating),
+    acreage: cleanAcreage(raw.acreage),
+    rating: cleanRating(raw.rating),
     amenities: cleanAmenities(raw.amenities),
     images: cleanImages(raw.images),
   };

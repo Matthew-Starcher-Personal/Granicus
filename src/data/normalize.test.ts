@@ -71,6 +71,19 @@ describe('normalizePark edge cases', () => {
     expect(park.rating).toBeNull();
   });
 
+  it('keeps ratings of 0 or more, rounded to one decimal', () => {
+    expect(normalizePark({ ...base, rating: 4.25 })!.rating).toBe(4.3);
+    expect(normalizePark({ ...base, rating: 4.333 })!.rating).toBe(4.3);
+    expect(normalizePark({ ...base, rating: 0 })!.rating).toBe(0);
+    expect(normalizePark({ ...base, rating: -1 })!.rating).toBeNull();
+  });
+
+  it('keeps only positive acreage', () => {
+    expect(normalizePark({ ...base, acreage: 0.04 })!.acreage).toBe(0.04);
+    expect(normalizePark({ ...base, acreage: 0 })!.acreage).toBeNull();
+    expect(normalizePark({ ...base, acreage: -3 })!.acreage).toBeNull();
+  });
+
   it('accepts numbers written as plain decimal strings', () => {
     const park = normalizePark({ ...base, acreage: ' 12 ', rating: '4.5', location: { lat: '40.5', lng: '-73.9' } })!;
     expect(park.acreage).toBe(12);

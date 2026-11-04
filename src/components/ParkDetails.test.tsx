@@ -41,6 +41,17 @@ describe('ParkDetails', () => {
     expect(screen.queryByText(/\/ ?5/)).toBeNull();
   });
 
+  it('rounds acreage to one decimal and shows tiny parks as <0.1 acres', () => {
+    const tiny = { ...park('sunset-playground'), acreage: 0.04, rating: 0 };
+    const { unmount } = render(<ParkDetails park={tiny} onBack={() => {}} />);
+    expect(screen.getByText('<0.1 acres')).toBeInTheDocument();
+    expect(screen.getByText('0.0')).toBeInTheDocument();
+    unmount();
+
+    render(<ParkDetails park={{ ...tiny, acreage: 1.04 }} onBack={() => {}} />);
+    expect(screen.getByText('1 acre')).toBeInTheDocument();
+  });
+
   it('keeps photos hidden until they load', () => {
     render(<ParkDetails park={park('prospect-park')} onBack={() => {}} />);
     expect(screen.queryByRole('heading', { name: 'Photos' })).toBeNull();
