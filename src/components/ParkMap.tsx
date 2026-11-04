@@ -102,7 +102,7 @@ export const ParkMap = forwardRef<ParkMapHandle, Props>(function ParkMap(
     <MapContainer center={NYC_CENTER} zoom={11} className="park-map" scrollWheelZoom>
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
       {located.map((park) => (
         <Marker
