@@ -26,12 +26,20 @@ function cleanLocation(value: unknown): Park['location'] {
   return { lat, lng };
 }
 
+// "Dog_Run", "dog run" and "dog-run" are the same amenity.
+function cleanSlug(value: unknown): string | null {
+  const text = cleanString(value);
+  if (text === null) return null;
+  const slug = text.toLowerCase().replace(/[\s_-]+/g, '-').replace(/^-|-$/g, '');
+  return slug === '' ? null : slug;
+}
+
 function cleanAmenities(value: unknown): Amenity[] {
   if (!Array.isArray(value)) return [];
   const seen = new Set<string>();
   const amenities: Amenity[] = [];
   for (const item of value) {
-    const slug = cleanString(item);
+    const slug = cleanSlug(item);
     if (slug === null || seen.has(slug)) continue;
     seen.add(slug);
     amenities.push({ slug, label: amenityLabel(slug) });

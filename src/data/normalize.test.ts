@@ -85,6 +85,14 @@ describe('normalizePark edge cases', () => {
     ]);
   });
 
+  it('treats amenity slugs that differ only in case or separators as the same', () => {
+    const park = normalizePark({ ...base, amenities: ['Dog-Run', 'dog_run', ' dog run ', 'ROCK__climbing', '_-_'] })!;
+    expect(park.amenities).toEqual([
+      { slug: 'dog-run', label: 'Dog run' },
+      { slug: 'rock-climbing', label: 'Rock climbing' },
+    ]);
+  });
+
   it('keeps only http(s) image URLs', () => {
     const park = normalizePark({ ...base, images: ['', 'ftp://a', 'https://a/1.jpg', 42] })!;
     expect(park.images).toEqual([{ src: 'https://a/1.jpg', alt: 'X Park, photo 1 of 1' }]);
