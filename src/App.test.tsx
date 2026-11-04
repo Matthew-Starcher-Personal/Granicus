@@ -20,14 +20,15 @@ function setViewport(desktop: boolean) {
 }
 
 describe('App', () => {
-  it('opens details from the list, announces them, and returns focus on back', async () => {
+  it('opens details from the list, focuses the park name, and returns focus on back', async () => {
     setViewport(true);
     render(<App parks={parks} />);
     const user = userEvent.setup();
 
     await user.click(screen.getByRole('button', { name: /Prospect Park/ }));
     expect(screen.getByRole('heading', { level: 2, name: 'Prospect Park' })).toHaveFocus();
-    expect(screen.getByRole('status')).toHaveTextContent('Showing details for Prospect Park');
+    // Focus on the heading announces the park; no separate live region repeats it.
+    expect(screen.queryByRole('status')).toBeNull();
     expect(screen.queryByRole('list', { name: '12 parks' })).toBeNull();
 
     await user.click(screen.getByRole('button', { name: /back to all parks/i }));

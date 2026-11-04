@@ -19,7 +19,6 @@ export function App({ parks }: Props) {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [mobileView, setMobileView] = useState<MobileView>('list');
   const [origin, setOrigin] = useState<Origin>('list');
-  const [announcement, setAnnouncement] = useState('');
   const [focusRequest, setFocusRequest] = useState<FocusRequest | null>(null);
 
   const panelRef = useRef<HTMLElement>(null);
@@ -38,15 +37,13 @@ export function App({ parks }: Props) {
 
   const openPark = useCallback(
     (id: string, from: Origin) => {
-      const park = parks.find((p) => p.id === id);
-      if (!park) return;
+      if (!parks.some((p) => p.id === id)) return;
       if (!detailsOpen) {
         savedScroll.current = { panel: panelRef.current?.scrollTop ?? 0, page: window.scrollY };
       }
       setSelectedId(id);
       setDetailsOpen(true);
       setOrigin(from);
-      setAnnouncement(`Showing details for ${park.name}`);
     },
     [parks, detailsOpen],
   );
@@ -54,7 +51,6 @@ export function App({ parks }: Props) {
   const closeDetails = useCallback(() => {
     if (!selectedId) return;
     setDetailsOpen(false);
-    setAnnouncement('');
     if (!isDesktop) setMobileView(origin);
     setFocusRequest({ kind: 'return', origin, id: selectedId });
   }, [selectedId, isDesktop, origin]);
@@ -142,9 +138,6 @@ export function App({ parks }: Props) {
           />
         </div>
       </main>
-      <div className="visually-hidden" aria-live="polite" role="status">
-        {announcement}
-      </div>
     </div>
   );
 }

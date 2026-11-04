@@ -35,7 +35,6 @@ test('keyboard: select a park from the list and go back', async ({ page, browser
 
   const heading = page.getByRole('heading', { level: 2, name: 'Cedar Hill Nature Preserve' });
   await expect(heading).toBeFocused();
-  await expect(page.getByRole('status')).toHaveText('Showing details for Cedar Hill Nature Preserve');
   await expectNoAxeViolations(page);
 
   await page.keyboard.press(`Shift+${tab}`);
