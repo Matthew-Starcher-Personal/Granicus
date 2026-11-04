@@ -45,7 +45,7 @@ function MapBehavior({ parks, selectedId, visible, reducedMotion }: MapBehaviorP
     if (!visible) return;
     map.invalidateSize();
     if (!hasFitted.current && parks.length > 0) {
-      map.fitBounds(L.latLngBounds(parks.map((p) => [p.location.lat, p.location.lng])), { padding: [40, 40] });
+      map.fitBounds(L.latLngBounds(parks.map((p) => [p.location.lat, p.location.lng])), { padding: [40, 40], maxZoom: 15 });
       hasFitted.current = true;
     }
   }, [map, visible, parks]);
