@@ -69,7 +69,9 @@ export function App({ parks }: Props) {
   useEffect(() => {
     if (!detailsOpen) return;
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') closeDetails();
+      if (event.key !== 'Escape' || event.defaultPrevented || event.isComposing) return;
+      if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+      closeDetails();
     };
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);

@@ -44,6 +44,23 @@ describe('App', () => {
     await waitFor(() => expect(screen.getByRole('button', { name: /Lakeshore Point/ })).toHaveFocus());
   });
 
+  it('ignores Escape that is already handled, composing, or has modifiers', async () => {
+    setViewport(true);
+    render(<App parks={parks} />);
+    const user = userEvent.setup();
+    await user.click(screen.getByRole('button', { name: /Lakeshore Point/ }));
+    const heading = screen.getByRole('heading', { level: 2, name: 'Lakeshore Point' });
+
+    const handled = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true });
+    handled.preventDefault();
+    act(() => {
+      document.dispatchEvent(handled);
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', isComposing: true }));
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', metaKey: true }));
+    });
+    expect(heading).toBeInTheDocument();
+  });
+
   it('shows the List/Map toggle only on mobile and hides it while details are open', async () => {
     setViewport(false);
     render(<App parks={parks} />);
