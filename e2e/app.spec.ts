@@ -108,6 +108,30 @@ test('layout: side by side on desktop, toggle on mobile', async ({ page }) => {
   }
 });
 
+test('mobile: showing the map again keeps where the user panned', async ({ page }) => {
+  test.skip(!isMobile(page), 'mobile toggle only');
+  const toggle = page.getByRole('group', { name: 'View parks as' });
+  await toggle.getByRole('button', { name: /Map/ }).click();
+  await page.locator('[data-park-id="highland-dog-park"]').click();
+  await page.getByRole('button', { name: /back to all parks/i }).click();
+
+  const pane = page.locator('.leaflet-map-pane');
+  const map = page.getByRole('region', { name: /Map of parks/ });
+  const settled = () => expect(page.locator('.leaflet-pan-anim')).toHaveCount(0);
+  await settled();
+  const before = await pane.getAttribute('style');
+  await map.focus();
+  await page.keyboard.press('ArrowRight');
+  await page.keyboard.press('ArrowRight');
+  await expect(pane).not.toHaveAttribute('style', before!);
+  await settled();
+  const panned = await pane.getAttribute('style');
+
+  await toggle.getByRole('button', { name: /List/ }).click();
+  await toggle.getByRole('button', { name: /Map/ }).click();
+  await expect(pane).toHaveAttribute('style', panned!);
+});
+
 test('reflows at 320px with no horizontal scroll', async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 640 });
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);

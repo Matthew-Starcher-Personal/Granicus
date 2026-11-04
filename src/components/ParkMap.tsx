@@ -50,8 +50,12 @@ function MapBehavior({ parks, selectedId, visible, reducedMotion }: MapBehaviorP
     }
   }, [map, visible, parks]);
 
+  // Pan once per new selection. Showing the map again must not undo the user's own panning,
+  // but a park picked while the map was hidden is still brought into view the first time it shows.
+  const lastPannedId = useRef<string | null>(null);
   useEffect(() => {
-    if (!visible || !selectedId) return;
+    if (!visible || !selectedId || selectedId === lastPannedId.current) return;
+    lastPannedId.current = selectedId;
     const park = parks.find((p) => p.id === selectedId);
     if (park) map.panTo([park.location.lat, park.location.lng], { animate: !reducedMotion });
   }, [map, visible, selectedId, parks, reducedMotion]);
