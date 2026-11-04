@@ -3,7 +3,7 @@ import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef } from 'rea
 import { MapContainer, Marker, TileLayer, useMap } from 'react-leaflet';
 import type { Park } from '../data/types';
 
-export type ParkMapHandle = { focusMarker: (id: string) => void };
+export type ParkMapHandle = { focusMarker: (id: string) => void; focusMap: () => void };
 
 type Props = {
   parks: Park[];
@@ -67,6 +67,7 @@ export const ParkMap = forwardRef<ParkMapHandle, Props>(function ParkMap(
   { parks, selectedId, visible, reducedMotion, onSelect },
   ref,
 ) {
+  const mapRef = useRef<L.Map>(null);
   const markers = useRef(new Map<string, L.Marker>());
   const onSelectRef = useRef(onSelect);
   onSelectRef.current = onSelect;
@@ -76,6 +77,7 @@ export const ParkMap = forwardRef<ParkMapHandle, Props>(function ParkMap(
 
   useImperativeHandle(ref, () => ({
     focusMarker: (id) => markers.current.get(id)?.getElement()?.focus(),
+    focusMap: () => mapRef.current?.getContainer().focus(),
   }), []);
 
   useEffect(() => {
@@ -92,7 +94,6 @@ export const ParkMap = forwardRef<ParkMapHandle, Props>(function ParkMap(
     const el = marker.getElement();
     if (!el) return;
     el.dataset.parkId = park.id;
-    el.setAttribute('aria-label', park.name);
     el.classList.toggle('park-pin--selected', park.id === selectedIdRef.current);
     el.addEventListener('keydown', (event) => {
       if (event.key === 'Enter' || event.key === ' ') {
@@ -103,7 +104,7 @@ export const ParkMap = forwardRef<ParkMapHandle, Props>(function ParkMap(
   };
 
   return (
-    <MapContainer center={NYC_CENTER} zoom={11} className="park-map" scrollWheelZoom>
+    <MapContainer ref={mapRef} id="park-map" center={NYC_CENTER} zoom={11} className="park-map" scrollWheelZoom>
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"

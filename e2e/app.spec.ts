@@ -23,12 +23,14 @@ test('keyboard: select a park from the list and go back', async ({ page, browser
   // WebKit on macOS skips links on plain Tab by default; Option+Tab reaches every control.
   const tab = browserName === 'webkit' ? 'Alt+Tab' : 'Tab';
   await page.keyboard.press(tab);
-  await expect(page.getByRole('link', { name: 'Skip to park list' })).toBeFocused();
   if (isMobile(page)) {
+    // No skip link on mobile; the first two stops are the List/Map toggle.
     await page.keyboard.press(tab);
+    await page.keyboard.press(tab);
+  } else {
+    await expect(page.getByRole('link', { name: 'Skip to map' })).toBeFocused();
     await page.keyboard.press(tab);
   }
-  await page.keyboard.press(tab);
   const first = parkButton(page, /Cedar Hill Nature Preserve/);
   await expect(first).toBeFocused();
   await page.keyboard.press('Enter');
@@ -43,9 +45,28 @@ test('keyboard: select a park from the list and go back', async ({ page, browser
   await expect(first).toBeFocused();
 });
 
+test('keyboard: skip link jumps past the park details to the map', async ({ page, browserName }) => {
+  test.skip(isMobile(page), 'desktop layout only');
+  const tab = browserName === 'webkit' ? 'Alt+Tab' : 'Tab';
+  await parkButton(page, /Prospect Park/).click();
+  const heading = page.getByRole('heading', { level: 2, name: 'Prospect Park' });
+  await expect(heading).toBeFocused();
+  await page.keyboard.press(`Shift+${tab}`);
+  await page.keyboard.press(`Shift+${tab}`);
+  const skip = page.getByRole('link', { name: 'Skip to map' });
+  await expect(skip).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(page.getByRole('region', { name: /Map of parks/ })).toBeFocused();
+  await page.keyboard.press(tab);
+  await expect(page.locator('.park-map :focus')).toHaveCount(1);
+});
+
 test('select a park from its map marker', async ({ page }) => {
   if (isMobile(page)) await page.getByRole('button', { name: /^.?\s*Map$/ }).click();
   const marker = page.locator('[data-park-id="highland-dog-park"]');
+  await expect(marker).toHaveAccessibleName('Highland Dog Park');
+  // The name comes from Leaflet's title alone; an aria-label too would make screen readers repeat it.
+  await expect(marker).not.toHaveAttribute('aria-label');
   await marker.focus();
   await page.keyboard.press('Enter');
   await expect(page.getByRole('heading', { level: 2, name: 'Highland Dog Park' })).toBeFocused();

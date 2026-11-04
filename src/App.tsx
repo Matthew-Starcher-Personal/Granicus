@@ -7,7 +7,7 @@ import type { Park } from './data/types';
 import { DESKTOP_QUERY, REDUCED_MOTION_QUERY, useMediaQuery } from './hooks/useMediaQuery';
 
 type Origin = 'list' | 'map';
-type FocusRequest = { kind: 'return'; origin: Origin; id: string } | { kind: 'panel' };
+type FocusRequest = { origin: Origin; id: string };
 
 type Props = { parks: Park[] };
 
@@ -23,8 +23,6 @@ export function App({ parks }: Props) {
 
   const panelRef = useRef<HTMLElement>(null);
   const mapRef = useRef<ParkMapHandle>(null);
-  const listHeadingRef = useRef<HTMLHeadingElement>(null);
-  const detailsHeadingRef = useRef<HTMLHeadingElement>(null);
   const listButtons = useRef(new Map<string, HTMLButtonElement>());
   const savedScroll = useRef({ panel: 0, page: 0 });
   const isDesktopRef = useRef(isDesktop);
@@ -63,7 +61,7 @@ export function App({ parks }: Props) {
     if (!selectedId) return;
     setDetailsOpen(false);
     if (!isDesktop) setMobileView(origin);
-    setFocusRequest({ kind: 'return', origin, id: selectedId });
+    setFocusRequest({ origin, id: selectedId });
   }, [selectedId, isDesktop, origin]);
 
   useEffect(() => {
@@ -87,23 +85,18 @@ export function App({ parks }: Props) {
   useEffect(() => {
     if (!focusRequest) return;
     const frame = requestAnimationFrame(() => {
-      if (focusRequest.kind === 'panel') {
-        (detailsOpen ? detailsHeadingRef : listHeadingRef).current?.focus();
-      } else {
-        if (panelRef.current) panelRef.current.scrollTop = savedScroll.current.panel;
-        window.scrollTo(0, savedScroll.current.page);
-        if (focusRequest.origin === 'map') mapRef.current?.focusMarker(focusRequest.id);
-        else listButtons.current.get(focusRequest.id)?.focus();
-      }
+      if (panelRef.current) panelRef.current.scrollTop = savedScroll.current.panel;
+      window.scrollTo(0, savedScroll.current.page);
+      if (focusRequest.origin === 'map') mapRef.current?.focusMarker(focusRequest.id);
+      else listButtons.current.get(focusRequest.id)?.focus();
       setFocusRequest(null);
     });
     return () => cancelAnimationFrame(frame);
-  }, [focusRequest, detailsOpen]);
+  }, [focusRequest]);
 
   const onSkip = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
-    if (!isDesktop && !detailsOpen) setMobileView('list');
-    setFocusRequest({ kind: 'panel' });
+    mapRef.current?.focusMap();
   };
 
   const panelVisible = isDesktop || detailsOpen || mobileView === 'list';
@@ -111,9 +104,12 @@ export function App({ parks }: Props) {
 
   return (
     <div className={!isDesktop && mapVisible ? 'app app--map-view' : 'app'}>
-      <a className="skip-link" href="#park-panel" onClick={onSkip}>
-        {detailsOpen ? 'Skip to park details' : 'Skip to park list'}
-      </a>
+      {/* Desktop only: on mobile the list and map are separate views behind the List/Map toggle. */}
+      {isDesktop && (
+        <a className="skip-link" href="#park-map" onClick={onSkip}>
+          Skip to map
+        </a>
+      )}
       <header className="site-header">
         <h1>NYC Parks Explorer</h1>
         <p>Explore New York City parks on the map or in the list.</p>
@@ -133,10 +129,9 @@ export function App({ parks }: Props) {
               selectedId={selectedId}
               onSelect={(id) => openPark(id, 'list')}
               buttonRef={buttonRef}
-              headingRef={listHeadingRef}
             />
           </div>
-          {selectedPark && <ParkDetails park={selectedPark} onBack={closeDetails} headingRef={detailsHeadingRef} />}
+          {selectedPark && <ParkDetails park={selectedPark} onBack={closeDetails} />}
         </section>
         <div className={mapVisible ? 'map-area' : 'map-area map-area--hidden'}>
           <ParkMap

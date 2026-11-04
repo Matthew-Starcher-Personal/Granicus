@@ -1,11 +1,14 @@
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { forwardRef } from 'react';
+import { forwardRef, useImperativeHandle } from 'react';
 import { App } from './App';
 import { parks } from './data/parks';
 
+const focusMap = vi.fn();
+
 vi.mock('./components/ParkMap', () => ({
-  ParkMap: forwardRef(function MockMap() {
+  ParkMap: forwardRef(function MockMap(_props, ref) {
+    useImperativeHandle(ref, () => ({ focusMarker: () => {}, focusMap }));
     return <div data-testid="map" />;
   }),
 }));
@@ -36,15 +39,22 @@ describe('App', () => {
     expect(screen.getByRole('button', { name: /Prospect Park/ })).toHaveAttribute('aria-current', 'true');
   });
 
-  it('names the skip link after what it jumps to', async () => {
+  it('skips past the list or details to the map', async () => {
     setViewport(true);
+    focusMap.mockClear();
     render(<App parks={parks} />);
     const user = userEvent.setup();
-    await user.click(screen.getByRole('link', { name: 'Skip to park list' }));
-    await waitFor(() => expect(screen.getByRole('heading', { level: 2, name: 'Parks' })).toHaveFocus());
+    await user.click(screen.getByRole('link', { name: 'Skip to map' }));
+    expect(focusMap).toHaveBeenCalledTimes(1);
     await user.click(screen.getByRole('button', { name: /Prospect Park/ }));
-    await user.click(screen.getByRole('link', { name: 'Skip to park details' }));
-    await waitFor(() => expect(screen.getByRole('heading', { level: 2, name: 'Prospect Park' })).toHaveFocus());
+    await user.click(screen.getByRole('link', { name: 'Skip to map' }));
+    expect(focusMap).toHaveBeenCalledTimes(2);
+  });
+
+  it('has no skip link on mobile, where the map is its own view', () => {
+    setViewport(false);
+    render(<App parks={parks} />);
+    expect(screen.queryByRole('link', { name: /skip/i })).toBeNull();
   });
 
   it('closes details with Escape', async () => {
