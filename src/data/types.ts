@@ -1,6 +1,6 @@
 export type Amenity = { slug: string; label: string };
 
-export type ParkImage = { src: string; alt: string };
+export type ParkImage = { src: string };
 
 export type Park = {
   id: string;

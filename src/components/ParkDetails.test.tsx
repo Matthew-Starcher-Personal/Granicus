@@ -50,7 +50,13 @@ describe('ParkDetails', () => {
     fireEvent.load(first);
     expect(screen.getByRole('heading', { name: 'Photos' })).toBeVisible();
     expect(screen.getAllByRole('img').map((img) => img.getAttribute('alt'))).toEqual([
+      'Prospect Park, photo 1 of 1',
+    ]);
+
+    fireEvent.load(document.querySelectorAll('.park-images img')[1]);
+    expect(screen.getAllByRole('img').map((img) => img.getAttribute('alt'))).toEqual([
       'Prospect Park, photo 1 of 2',
+      'Prospect Park, photo 2 of 2',
     ]);
   });
 
@@ -69,8 +75,9 @@ describe('ParkDetails', () => {
     fireEvent.error(first);
     fireEvent.load(second);
     expect(screen.getByRole('heading', { name: 'Photos' })).toBeVisible();
+    // Counted among the photos shown, not the URLs in the data.
     expect(screen.getAllByRole('img').map((img) => img.getAttribute('alt'))).toEqual([
-      'Prospect Park, photo 2 of 2',
+      'Prospect Park, photo 1 of 1',
     ]);
   });
 

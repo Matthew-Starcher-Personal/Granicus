@@ -41,10 +41,10 @@ describe('normalizeParks with the sample data', () => {
     expect(byId('central-plaza-green').amenities).toContainEqual({ slug: 'wifi', label: 'Wi-Fi' });
   });
 
-  it('builds image alt text from the park name and position', () => {
-    expect(byId('prospect-park').images.map((i) => i.alt)).toEqual([
-      'Prospect Park, photo 1 of 2',
-      'Prospect Park, photo 2 of 2',
+  it('keeps image URLs in order', () => {
+    expect(byId('prospect-park').images).toEqual([
+      { src: 'https://images.example.com/prospect-1.jpg' },
+      { src: 'https://images.example.com/prospect-2.jpg' },
     ]);
   });
 });
@@ -95,7 +95,7 @@ describe('normalizePark edge cases', () => {
 
   it('keeps only http(s) image URLs', () => {
     const park = normalizePark({ ...base, images: ['', 'ftp://a', 'https://a/1.jpg', 42] })!;
-    expect(park.images).toEqual([{ src: 'https://a/1.jpg', alt: 'X Park, photo 1 of 1' }]);
+    expect(park.images).toEqual([{ src: 'https://a/1.jpg' }]);
   });
 
   it('drops repeated image URLs', () => {

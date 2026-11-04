@@ -57,7 +57,7 @@ export function ParkDetails({ park, onBack, headingRef: outerHeadingRef }: Props
           </ul>
         </section>
       )}
-      <ParkImages key={park.id} images={park.images} />
+      <ParkImages key={park.id} images={park.images} parkName={park.name} />
     </article>
   );
 }

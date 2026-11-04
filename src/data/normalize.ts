@@ -47,17 +47,14 @@ function cleanAmenities(value: unknown): Amenity[] {
   return amenities;
 }
 
-function cleanImages(value: unknown, parkName: string): ParkImage[] {
+function cleanImages(value: unknown): ParkImage[] {
   if (!Array.isArray(value)) return [];
   const sources = [
     ...new Set(
       value.map(cleanString).filter((src): src is string => src !== null && /^https?:\/\//i.test(src)),
     ),
   ];
-  return sources.map((src, index) => ({
-    src,
-    alt: `${parkName}, photo ${index + 1} of ${sources.length}`,
-  }));
+  return sources.map((src) => ({ src }));
 }
 
 export function normalizePark(raw: unknown): Park | null {
@@ -77,7 +74,7 @@ export function normalizePark(raw: unknown): Park | null {
     acreage: cleanNumber(raw.acreage),
     rating: cleanNumber(raw.rating),
     amenities: cleanAmenities(raw.amenities),
-    images: cleanImages(raw.images, name),
+    images: cleanImages(raw.images),
   };
 }
 
