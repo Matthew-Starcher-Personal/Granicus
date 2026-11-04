@@ -128,7 +128,10 @@ test('mobile: showing the map again keeps where the user panned', async ({ page 
 
   await toggle.getByRole('button', { name: /List/ }).click();
   await toggle.getByRole('button', { name: /Map/ }).click();
-  await expect(pane).toHaveAttribute('style', panned!);
+  // A re-pan would start on the next frame and run ~250ms, so wait past it before comparing;
+  // a polling assertion here would pass in the instant before the pan begins.
+  await page.waitForTimeout(600);
+  expect(await pane.getAttribute('style')).toBe(panned);
 });
 
 test('reflows at 320px with no horizontal scroll', async ({ page }) => {
